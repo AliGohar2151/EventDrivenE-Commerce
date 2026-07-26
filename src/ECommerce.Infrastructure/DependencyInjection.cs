@@ -1,5 +1,6 @@
 using System.Text;
 using ECommerce.Application.Abstractions;
+using ECommerce.Application.Consumers;
 using ECommerce.Contracts.Events;
 using ECommerce.Infrastructure.Authentication;
 using ECommerce.Infrastructure.Logging;
@@ -35,6 +36,9 @@ public static class DependencyInjection
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.AddSingleton<IEventBus, InMemoryEventBus>();
         services.AddTransient<IIntegrationEventHandler<OrderCreatedIntegrationEvent>, OrderCreatedIntegrationEventHandler>();
+        services.AddTransient<IIntegrationEventHandler<OrderCreatedIntegrationEvent>, OrderCreatedNotificationConsumer>();
+        services.AddTransient<IIntegrationEventHandler<PaymentSucceededIntegrationEvent>, PaymentNotificationConsumer>();
+        services.AddTransient<IIntegrationEventHandler<PaymentFailedIntegrationEvent>, PaymentNotificationConsumer>();
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.AddSingleton<IPasswordHasher, PasswordHasher>();

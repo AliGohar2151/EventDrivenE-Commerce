@@ -1,8 +1,8 @@
 # Project Memory — Event-Driven E-Commerce Backend
 
 **Last Updated:** 2026-07-26
-**Current Phase:** Phase 12 — Observability (Completed)
-**Next Phase:** Phase 13 — Testing & Quality
+**Current Phase:** Phase 13 — Testing & Quality (Completed)
+**Next Phase:** Phase 14 — Docker & Local Infrastructure
 
 ---
 
@@ -80,6 +80,11 @@
 - Custom metrics instrumentation (`ECommerceMetrics`) for orders, payments, events, retries, and dead-letter messages.
 - Liveness (`/health/live`) and readiness (`/health/ready`) probe endpoints.
 
+### Phase 13 — Testing & Quality (COMPLETED)
+- End-to-End Workflow Integration Test (`E2EWorkflowTests`) covering the full user flow (`Register` -> `Login` -> `Catalog` -> `Cart` -> `Order` -> `Payment` -> `Inventory` -> `Notification`).
+- Expanded Architecture rules (`ArchitectureTests`) verifying Domain independence, Application boundaries, and Entity primitive inheritance.
+- Additional Domain unit tests for Inventory concurrency and Cart calculations.
+
 ---
 
 ## 2. Key Architectural Decisions
@@ -92,18 +97,20 @@
 - **Messaging Reliability:** Outbox database persistence, Inbox deduplication, Exponential Backoff + Jitter retries, and Dead-Letter storage routing.
 - **Async Notifications:** Triggered out-of-band by event consumers without blocking core checkout or payment request threads.
 - **Observability:** Distributed `X-Correlation-ID` tracing across logs, HTTP responses, and events with `System.Diagnostics.Metrics` instrumentation.
+- **Integration Testing:** Isolated in-memory WebApplicationFactory testing fixture (`CustomWebApplicationFactory`).
 
 ---
 
 ## 3. Current State & Known Issues
 
 - **Build Status:** Clean compilation under .NET 10 SDK.
-- **Tests Status:** All 68 Unit, Integration, and Architecture tests passing cleanly.
+- **Tests Status:** All 72 Unit (67), Integration (2), and Architecture (3) tests passing cleanly.
 - **Known Issues:** None.
 
 ---
 
 ## 4. Next Recommended Task
 
-- Proceed to **Phase 13 — Testing & Quality**:
-  - Code coverage review, edge case test expansion, boundary validation, and architecture rule enforcement.
+- Proceed to **Phase 14 — Docker & Local Infrastructure**:
+  - `Dockerfile` multi-stage build.
+  - `docker-compose.yml` orchestrating PostgreSQL, Redis, RabbitMQ, and API service.
