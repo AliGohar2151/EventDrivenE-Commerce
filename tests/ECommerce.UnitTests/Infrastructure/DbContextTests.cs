@@ -35,7 +35,7 @@ public class DbContextTests
         using var context = new ApplicationDbContext(options);
 
         var category = Category.Create("Electronics", "Gadgets and devices");
-        var product = Product.Create("Smartphone", "SM-001", 699.99m, category.Id);
+        var product = Product.Create("Smartphone", "SM-001", "High-end smartphone", 699.99m, category.Id);
 
         context.Categories.Add(category);
         context.Products.Add(product);

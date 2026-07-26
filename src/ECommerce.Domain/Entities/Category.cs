@@ -18,4 +18,10 @@ public class Category : Entity<Guid>
     {
         return new Category(Guid.NewGuid(), name, description);
     }
+
+    public void Update(string name, string description)
+    {
+        Name = name;
+        Description = description;
+    }
 }

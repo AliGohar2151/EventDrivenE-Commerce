@@ -23,12 +23,35 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasIndex(p => p.Sku)
             .IsUnique();
 
+        builder.Property(p => p.Description)
+            .HasMaxLength(2000);
+
         builder.Property(p => p.Price)
             .HasPrecision(18, 2)
             .IsRequired();
 
+        builder.Property(p => p.Status)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired();
+
         builder.Property(p => p.CategoryId)
             .IsRequired();
+
+        builder.Property(p => p.CreatedOnUtc)
+            .IsRequired();
+
+        builder.Property(p => p.UpdatedOnUtc);
+
+        builder.OwnsMany(p => p.Variants, v =>
+        {
+            v.ToTable("product_variants");
+            v.WithOwner().HasForeignKey("ProductId");
+            v.HasKey("VariantSku");
+            v.Property(x => x.VariantSku).HasMaxLength(100);
+            v.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            v.Property(x => x.PriceModifier).HasPrecision(18, 2);
+        });
 
         builder.HasOne<Category>()
             .WithMany()
