@@ -1,129 +1,118 @@
-# Event-Driven E-Commerce Backend
+<div align="center">
 
-A production-grade, event-driven e-commerce backend built with **C# / .NET 10** following **Clean Architecture**, **Domain-Driven Design (DDD)**, and **CQRS** principles.
+# 🛒 EventDrivenE-Commerce
+
+### A production-grade event-driven e-commerce backend built with .NET 10
+
+[![CI/CD](https://github.com/AliGohar2151/EventDrivenE-Commerce/actions/workflows/ci.yml/badge.svg)](https://github.com/AliGohar2151/EventDrivenE-Commerce/actions/workflows/ci.yml)
+[![.NET](https://img.shields.io/badge/.NET-10.0--preview-512BD4?logo=dotnet)](https://dotnet.microsoft.com/download/dotnet/10.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-81%20passing-brightgreen?logo=xunit)](tests/)
+[![Docker](https://img.shields.io/badge/docker-compose-2496ED?logo=docker)](docker-compose.yml)
+
+[Features](#-features) · [Architecture](#-architecture) · [Getting Started](#-getting-started) · [API Reference](#-api-reference) · [Event Flow](#-event-flow) · [Testing](#-testing)
+
+</div>
 
 ---
 
-## Architecture Overview
+## ✨ Features
+
+| | Feature | Description |
+|---|---|---|
+| 🔐 | **Authentication & Authorization** | JWT access tokens, refresh token rotation, PBKDF2/SHA-256 hashing, RBAC permission policies |
+| 📦 | **Product Catalog** | Full CRUD with variants, SKU tracking, multi-parameter search, filter, sort & pagination |
+| 🏭 | **Inventory Management** | Stock reservation, overselling prevention, optimistic concurrency control |
+| 🛒 | **Shopping Cart** | Per-user cart with real-time product & inventory validation |
+| 📋 | **Order Management** | Full lifecycle state machine (`Pending → Paid → Shipped → Delivered`) |
+| 💳 | **Payment Processing** | Provider abstraction, idempotency key deduplication, event-driven status tracking |
+| 📡 | **Event-Driven Messaging** | Outbox + Inbox reliability patterns, retry with Exponential Backoff + Jitter |
+| 🔔 | **Notifications** | Async order & payment event-triggered notifications |
+| 👁️ | **Observability** | `X-Correlation-ID` propagation, custom metrics, liveness & readiness probes |
+| 🛡️ | **Production Hardening** | Global exception handling, rate limiting, structured `ProblemDetails` responses |
+| 🐳 | **Docker** | Single-command local environment with all infrastructure services |
+| ⚙️ | **CI/CD** | GitHub Actions pipeline — build, test & Docker verification on every PR |
+
+---
+
+## 🏗️ Architecture
+
+This project follows **Clean Architecture** with strict layer boundaries enforced by automated architecture tests.
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                        API Layer                        │
-│           Controllers · Middleware · Rate Limiting       │
-└─────────────────────┬───────────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────────┐
-│                   Application Layer                     │
-│         Services · Abstractions · Event Consumers        │
-└─────────────────────┬───────────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────────┐
-│                    Domain Layer                         │
-│    Entities · Value Objects · Domain Events · Rules      │
-└─────────────────────────────────────────────────────────┘
-                      │
-┌─────────────────────▼───────────────────────────────────┐
-│                 Infrastructure Layer                    │
-│  EF Core · PostgreSQL · InMemoryEventBus · Middleware    │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                          API Layer                           │
+│        Controllers  ·  Middleware  ·  Rate Limiting          │
+└──────────────────────────────┬───────────────────────────────┘
+                               │  depends on
+┌──────────────────────────────▼───────────────────────────────┐
+│                      Application Layer                       │
+│           Services  ·  Abstractions  ·  Event Consumers      │
+└──────────────────────────────┬───────────────────────────────┘
+                               │  depends on
+┌──────────────────────────────▼───────────────────────────────┐
+│                       Domain Layer                           │
+│     Entities  ·  Value Objects  ·  Domain Events  ·  Rules   │
+│               ← zero external dependencies →                  │
+└──────────────────────────────────────────────────────────────┘
+                               ↑  implements
+┌──────────────────────────────┴───────────────────────────────┐
+│                   Infrastructure Layer                       │
+│     EF Core  ·  PostgreSQL  ·  Messaging  ·  Middleware      │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### Layers
-
-| Layer | Project | Responsibility |
-| :--- | :--- | :--- |
-| Domain | `ECommerce.Domain` | Entities, Value Objects, Domain Events, business rules |
-| Contracts | `ECommerce.Contracts` | Shared DTOs, integration event contracts |
-| Application | `ECommerce.Application` | Services, use case orchestration, event consumers |
-| Infrastructure | `ECommerce.Infrastructure` | EF Core, PostgreSQL, messaging, middleware |
-| API | `ECommerce.Api` | HTTP endpoints, authentication, rate limiting |
-
----
-
-## Features
-
-| Feature | Description |
-| :--- | :--- |
-| **Authentication & Authorization** | JWT access tokens + refresh token rotation, PBKDF2/SHA-256 password hashing, RBAC permission policies |
-| **Product Catalog** | Product & category management, product variants, multi-parameter search/filter/sort/pagination |
-| **Inventory Management** | Stock reservation, overselling prevention (`AvailableQty = Stock - Reserved`), optimistic concurrency |
-| **Shopping Cart** | Per-user cart management with product and inventory validation |
-| **Order Management** | Full order lifecycle state machine (`Pending → Paid → Shipped → Delivered`) |
-| **Payment Processing** | `IPaymentProvider` gateway abstraction, idempotency key deduplication |
-| **Event-Driven Messaging** | `IEventBus`, `InMemoryEventBus`, Outbox + Inbox patterns, retry + dead-letter |
-| **Notifications** | Order & payment event-triggered async notifications |
-| **Observability** | `X-Correlation-ID` propagation, custom metrics, `/health/live` + `/health/ready` probes |
-| **Rate Limiting** | 100 req/min fixed-window per IP (429 Too Many Requests) |
-| **Global Error Handling** | Structured `ProblemDetails` responses with correlation ID |
-
----
-
-## Technology Stack
-
-| Technology | Usage |
-| :--- | :--- |
-| .NET 10 | Target framework |
-| ASP.NET Core | HTTP API framework |
-| Entity Framework Core 9 | ORM |
-| PostgreSQL (Npgsql) | Primary database |
-| JWT Bearer | Authentication |
-| xUnit + FluentAssertions | Unit & integration testing |
-| NetArchTest | Architecture boundary enforcement |
-| Docker + Docker Compose | Container orchestration |
-| GitHub Actions | CI/CD pipeline |
-
----
-
-## Project Structure
+### Project Structure
 
 ```
 EventDrivenE-Commerce/
 ├── src/
 │   ├── ECommerce.Contracts/          # Shared DTOs & integration event contracts
-│   ├── ECommerce.Domain/             # Domain entities, value objects, domain events
-│   ├── ECommerce.Application/        # Application services, consumers, abstractions
+│   ├── ECommerce.Domain/             # Entities, Value Objects, Domain Events
+│   ├── ECommerce.Application/        # Services, consumers, abstractions
 │   ├── ECommerce.Infrastructure/     # EF Core, PostgreSQL, messaging, middleware
-│   └── ECommerce.Api/                # API controllers, Program.cs, middleware pipeline
+│   └── ECommerce.Api/                # HTTP API, controllers, pipeline
 ├── tests/
-│   ├── ECommerce.UnitTests/          # Unit tests (Domain, Services, Middleware)
-│   ├── ECommerce.IntegrationTests/   # Integration & E2E workflow tests
-│   └── ECommerce.ArchitectureTests/  # NetArchTest architecture boundary rules
-├── docs/
-│   ├── phases.md                     # Project phases & status tracking
-│   ├── memory.md                     # Persistent project memory
-│   ├── PRD.md                        # Product Requirements Document
-│   ├── Architecture.md               # Architecture Decision Records
-│   └── rules.md                      # Coding standards & rules
-├── Dockerfile                        # Multi-stage container build
-├── docker-compose.yml                # Local infrastructure orchestration
+│   ├── ECommerce.UnitTests/          # Domain, services, middleware unit tests
+│   ├── ECommerce.IntegrationTests/   # E2E workflow & health check tests
+│   └── ECommerce.ArchitectureTests/  # Clean Architecture boundary enforcement
+├── docs/                             # Architecture docs, ADRs, phases
 ├── .github/workflows/ci.yml          # GitHub Actions CI/CD pipeline
-└── Directory.Packages.props          # Central Package Management
+├── Dockerfile                        # Multi-stage container build
+└── docker-compose.yml                # Local infrastructure orchestration
 ```
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- [.NET 10 SDK (preview)](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (preview)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-### Local Development (Docker)
+### Option 1 — Docker (Recommended)
 
-Start the full local infrastructure stack:
+Start the entire infrastructure with a single command:
 
 ```bash
 docker compose up --build
 ```
 
-This starts:
-- **PostgreSQL 16** on port `5432`
-- **Redis 7** on port `6379`
-- **RabbitMQ 3** on port `5672` (Management UI: http://localhost:15672)
-- **API** on port `8080` (http://localhost:8080/health)
+This spins up:
 
-### Local Development (.NET)
+| Service | Port | Description |
+|---|---|---|
+| **API** | `8080` | ASP.NET Core REST API |
+| **PostgreSQL 16** | `5432` | Primary database |
+| **Redis 7** | `6379` | Cache |
+| **RabbitMQ 3** | `5672` / `15672` | Message broker / Management UI |
+
+> API will be available at **http://localhost:8080**  
+> Health check at **http://localhost:8080/health**  
+> RabbitMQ Management UI at **http://localhost:15672** (guest / guest)
+
+### Option 2 — .NET CLI
 
 ```bash
 # Restore packages
@@ -132,150 +121,193 @@ dotnet restore
 # Build
 dotnet build
 
-# Run
+# Run API
 dotnet run --project src/ECommerce.Api
 ```
 
 ---
 
-## API Endpoints
+## 📡 API Reference
 
-### Authentication
+### 🔐 Authentication
+
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/v1/auth/register` | Register a new user |
+|---|---|---|
+| `POST` | `/api/v1/auth/register` | Register a new user account |
 | `POST` | `/api/v1/auth/login` | Login and receive JWT + refresh token |
-| `POST` | `/api/v1/auth/refresh` | Refresh access token |
-| `POST` | `/api/v1/auth/revoke` | Revoke refresh token |
-| `GET` | `/api/v1/auth/me` | Get current user info |
+| `POST` | `/api/v1/auth/refresh` | Refresh an expired access token |
+| `POST` | `/api/v1/auth/revoke` | Revoke a refresh token |
+| `GET` | `/api/v1/auth/me` | Get current authenticated user |
 
-### Products & Categories
+### 📦 Products & Categories
+
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
+|---|---|---|
 | `GET` | `/api/v1/products` | List products (search, filter, sort, paginate) |
-| `POST` | `/api/v1/products` | Create product |
+| `POST` | `/api/v1/products` | Create a new product |
 | `GET` | `/api/v1/products/{id}` | Get product by ID |
 | `PUT` | `/api/v1/products/{id}` | Update product |
 | `DELETE` | `/api/v1/products/{id}` | Delete product |
-| `GET` | `/api/v1/categories` | List categories |
-| `POST` | `/api/v1/categories` | Create category |
+| `GET` | `/api/v1/categories` | List all categories |
+| `POST` | `/api/v1/categories` | Create a new category |
 
-### Inventory
+### 🏭 Inventory
+
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/v1/inventory/{productId}` | Get inventory for product |
+|---|---|---|
+| `GET` | `/api/v1/inventory/{productId}` | Get inventory status |
 | `POST` | `/api/v1/inventory/{productId}/adjust` | Adjust stock quantity |
 | `POST` | `/api/v1/inventory/{productId}/reserve` | Reserve stock |
 | `POST` | `/api/v1/inventory/{productId}/release` | Release reservation |
 
-### Cart
+### 🛒 Cart
+
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
+|---|---|---|
 | `GET` | `/api/v1/cart` | View current cart |
 | `POST` | `/api/v1/cart/items` | Add item to cart |
 | `PUT` | `/api/v1/cart/items/{productId}` | Update item quantity |
-| `DELETE` | `/api/v1/cart/items/{productId}` | Remove item from cart |
+| `DELETE` | `/api/v1/cart/items/{productId}` | Remove item |
 | `DELETE` | `/api/v1/cart` | Clear cart |
 
-### Orders
+### 📋 Orders
+
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
+|---|---|---|
 | `POST` | `/api/v1/orders` | Place a new order |
 | `GET` | `/api/v1/orders` | List user orders |
 | `GET` | `/api/v1/orders/{id}` | Get order details |
-| `POST` | `/api/v1/orders/{id}/cancel` | Cancel order |
+| `POST` | `/api/v1/orders/{id}/cancel` | Cancel an order |
 
-### Payments
+### 💳 Payments
+
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
+|---|---|---|
 | `POST` | `/api/v1/payments` | Process payment for an order |
 | `GET` | `/api/v1/payments/{orderId}` | Get payment status |
 
-### Notifications
+### 🔔 Notifications
+
 | Method | Endpoint | Description |
-| :--- | :--- | :--- |
+|---|---|---|
 | `GET` | `/api/v1/notifications` | Get user notifications |
 
-### Health
+### ❤️ Health Checks
+
 | Endpoint | Description |
-| :--- | :--- |
+|---|---|
 | `/health` | Full health check |
 | `/health/live` | Liveness probe |
 | `/health/ready` | Readiness probe |
 
 ---
 
-## Event Flow
+## 📡 Event Flow
 
 ```
-Order Placed
-    │
-    ▼
-OrderCreatedIntegrationEvent published
-    │
-    ├──► OrderCreatedIntegrationEventHandler  → reserve stock
-    └──► OrderCreatedNotificationConsumer     → send order confirmation notification
+User places order
+       │
+       ▼
+ OrderCreatedIntegrationEvent
+       │
+       ├──► OrderCreatedIntegrationEventHandler
+       │         └── Reserve stock in inventory
+       │
+       └──► OrderCreatedNotificationConsumer
+                 └── Send order confirmation notification
 
-Payment Processed
-    │
-    ▼
-PaymentSucceededIntegrationEvent published
-    │
-    └──► PaymentNotificationConsumer          → send payment success notification
-
-PaymentFailedIntegrationEvent published
-    │
-    └──► PaymentNotificationConsumer          → send payment failed notification
+User payment processed
+       │
+       ▼
+ PaymentSucceededIntegrationEvent ──► PaymentNotificationConsumer
+ PaymentFailedIntegrationEvent    ──► PaymentNotificationConsumer
 ```
 
 ---
 
-## Running Tests
+## 🛡️ Reliability Patterns
+
+| Pattern | Implementation | Purpose |
+|---|---|---|
+| **Outbox Pattern** | `OutboxMessage` | Atomic DB + event publishing — zero event loss |
+| **Inbox Pattern** | `InboxMessage` | Idempotent consumer deduplication |
+| **Retry with Backoff** | `ResilientConsumer` | Exponential Backoff + Jitter on failures |
+| **Dead-Letter Storage** | `DeadLetterMessage` | Route exhausted messages for inspection |
+| **Idempotency Keys** | `Payment.IdempotencyKey` | Prevent duplicate payment charges |
+| **Optimistic Concurrency** | `InventoryItem.Version` | Prevent overselling under concurrent load |
+
+---
+
+## 🧪 Testing
 
 ```bash
 # Run all tests
 dotnet test
 
-# Run specific project
+# Run specific suites
 dotnet test tests/ECommerce.UnitTests
 dotnet test tests/ECommerce.IntegrationTests
 dotnet test tests/ECommerce.ArchitectureTests
 ```
 
-### Test Summary
-
-| Suite | Count | Description |
-| :--- | :--- | :--- |
-| Unit Tests | 76 | Domain, services, middleware |
-| Integration Tests | 2 | E2E workflow + health check |
-| Architecture Tests | 3 | Clean Architecture boundary rules |
-| **Total** | **81** | |
+| Suite | Tests | Coverage |
+|---|---|---|
+| Unit Tests | **76** | Domain, Services, Middleware |
+| Integration Tests | **2** | E2E workflow, health checks |
+| Architecture Tests | **3** | Layer dependency enforcement |
+| **Total** | **81** | **0 failures** |
 
 ---
 
-## CI/CD
+## ⚙️ CI/CD Pipeline
 
-GitHub Actions pipeline (`.github/workflows/ci.yml`) automatically runs on every push and pull request to `master`/`main`:
+Every push and pull request to `master`/`main` triggers:
 
 ```
-Checkout → .NET 10 Setup → Restore → Build (Release) → Test → Docker Build
+Checkout
+    │
+    ▼
+Setup .NET 10
+    │
+    ▼
+dotnet restore  →  dotnet build -c Release
+    │
+    ▼
+dotnet test (81 tests)
+    │
+    ▼
+docker build (verify container builds)
 ```
 
 ---
 
-## Reliability Patterns
+## 🛠️ Technology Stack
 
-| Pattern | Implementation |
-| :--- | :--- |
-| **Outbox Pattern** | `OutboxMessage` — atomic DB + event publishing |
-| **Inbox Pattern** | `InboxMessage` — idempotent consumer deduplication |
-| **Retry with Backoff** | `ResilientConsumer` — Exponential Backoff + Jitter |
-| **Dead-Letter Storage** | `DeadLetterMessage` — failed message routing |
-| **Idempotency Keys** | `Payment.IdempotencyKey` — unique index preventing duplicate charges |
-| **Optimistic Concurrency** | `InventoryItem.Version` — concurrent stock update protection |
+| Technology | Version | Purpose |
+|---|---|---|
+| .NET | 10.0 (preview) | Target framework |
+| ASP.NET Core | 10.0 | HTTP API & middleware |
+| Entity Framework Core | 9.0 | ORM |
+| PostgreSQL / Npgsql | 9.0 | Primary database |
+| JWT Bearer | 9.0 | Authentication |
+| xUnit | 2.9 | Test framework |
+| FluentAssertions | 7.2 | Test assertions |
+| NetArchTest | 1.3 | Architecture tests |
+| Docker Compose | v3.8 | Container orchestration |
+| GitHub Actions | — | CI/CD |
 
 ---
 
-## License
+## 📖 Documentation
 
-MIT
+| Document | Description |
+|---|---|
+| [`docs/ADR.md`](docs/ADR.md) | Architecture Decision Records |
+| [`docs/Architecture.md`](docs/Architecture.md) | Detailed architecture documentation |
+| [`docs/phases.md`](docs/phases.md) | Project phases & completion status |
+
+---
+
+## 📄 License
+
+MIT © [Ali Gohar](https://github.com/AliGohar2151)
