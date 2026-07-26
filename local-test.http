@@ -1,0 +1,258 @@
+### ============================================================
+### Event-Driven E-Commerce API — Local Test Requests
+### ============================================================
+### Usage: Open in VS Code with REST Client extension, or
+###        use the built-in HTTP client in Visual Studio / Rider
+###
+### Base URL: http://localhost:5000 (dotnet run)
+###           http://localhost:8080 (docker compose)
+###
+### Run requests in order: Register → Login → (copy token) → Test
+### ============================================================
+
+@baseUrl = http://localhost:5000
+@contentType = application/json
+
+### ---------------------------------------------------------------
+### 1. HEALTH CHECKS
+### ---------------------------------------------------------------
+
+### Full health check
+GET {{baseUrl}}/health
+
+###
+
+### Liveness probe
+GET {{baseUrl}}/health/live
+
+###
+
+### Readiness probe
+GET {{baseUrl}}/health/ready
+
+###
+
+### ---------------------------------------------------------------
+### 2. AUTHENTICATION
+### ---------------------------------------------------------------
+
+### Register a new user
+# @name register
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Ali",
+  "lastName": "Gohar",
+  "email": "ali@ecommerce.dev",
+  "password": "StrongPass123!"
+}
+
+###
+
+### Login
+# @name login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "ali@ecommerce.dev",
+  "password": "StrongPass123!"
+}
+
+###
+
+### !! COPY the accessToken from the login response above !!
+### Then paste it below replacing YOUR_JWT_TOKEN_HERE
+
+@token = YOUR_JWT_TOKEN_HERE
+
+###
+
+### Get current user profile
+GET {{baseUrl}}/api/v1/auth/me
+Authorization: Bearer {{token}}
+
+###
+
+### ---------------------------------------------------------------
+### 3. CATEGORIES
+### ---------------------------------------------------------------
+
+### Create a category
+# @name createCategory
+POST {{baseUrl}}/api/v1/categories
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Electronics",
+  "description": "Electronic devices and accessories"
+}
+
+###
+
+### List all categories
+GET {{baseUrl}}/api/v1/categories
+Authorization: Bearer {{token}}
+
+###
+
+### ---------------------------------------------------------------
+### 4. PRODUCTS
+### ---------------------------------------------------------------
+
+### !! Set your categoryId from the createCategory response above !!
+@categoryId = YOUR_CATEGORY_ID_HERE
+
+### Create a product
+# @name createProduct
+POST {{baseUrl}}/api/v1/products
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Wireless Headphones Pro",
+  "description": "Premium noise-cancelling wireless headphones",
+  "price": 299.99,
+  "sku": "WHP-001",
+  "categoryId": "{{categoryId}}"
+}
+
+###
+
+### List products (with search & pagination)
+GET {{baseUrl}}/api/v1/products?page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+###
+
+### Search products by name
+GET {{baseUrl}}/api/v1/products?search=headphones
+Authorization: Bearer {{token}}
+
+###
+
+### !! Set productId from the createProduct response above !!
+@productId = YOUR_PRODUCT_ID_HERE
+
+### Get product by ID
+GET {{baseUrl}}/api/v1/products/{{productId}}
+Authorization: Bearer {{token}}
+
+###
+
+### ---------------------------------------------------------------
+### 5. INVENTORY
+### ---------------------------------------------------------------
+
+### Adjust inventory (add 100 units)
+POST {{baseUrl}}/api/v1/inventory/{{productId}}/adjust
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "quantity": 100,
+  "reason": "Initial stock"
+}
+
+###
+
+### Get inventory status
+GET {{baseUrl}}/api/v1/inventory/{{productId}}
+Authorization: Bearer {{token}}
+
+###
+
+### ---------------------------------------------------------------
+### 6. CART
+### ---------------------------------------------------------------
+
+### Add item to cart
+POST {{baseUrl}}/api/v1/cart/items
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "productId": "{{productId}}",
+  "quantity": 2
+}
+
+###
+
+### View cart
+GET {{baseUrl}}/api/v1/cart
+Authorization: Bearer {{token}}
+
+###
+
+### ---------------------------------------------------------------
+### 7. ORDERS
+### ---------------------------------------------------------------
+
+### Place an order
+# @name placeOrder
+POST {{baseUrl}}/api/v1/orders
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "shippingAddress": {
+    "street": "123 Main Street",
+    "city": "Lahore",
+    "state": "Punjab",
+    "country": "Pakistan",
+    "postalCode": "54000"
+  }
+}
+
+###
+
+### List my orders
+GET {{baseUrl}}/api/v1/orders
+Authorization: Bearer {{token}}
+
+###
+
+### !! Set orderId from the placeOrder response above !!
+@orderId = YOUR_ORDER_ID_HERE
+
+### Get order details
+GET {{baseUrl}}/api/v1/orders/{{orderId}}
+Authorization: Bearer {{token}}
+
+###
+
+### ---------------------------------------------------------------
+### 8. PAYMENTS
+### ---------------------------------------------------------------
+
+### Process payment for the order
+POST {{baseUrl}}/api/v1/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "orderId": "{{orderId}}",
+  "amount": 599.98,
+  "currency": "USD",
+  "idempotencyKey": "PAY-{{orderId}}-001"
+}
+
+###
+
+### Get payment status
+GET {{baseUrl}}/api/v1/payments/{{orderId}}
+Authorization: Bearer {{token}}
+
+###
+
+### ---------------------------------------------------------------
+### 9. NOTIFICATIONS
+### ---------------------------------------------------------------
+
+### Get my notifications
+GET {{baseUrl}}/api/v1/notifications
+Authorization: Bearer {{token}}
+
+###
