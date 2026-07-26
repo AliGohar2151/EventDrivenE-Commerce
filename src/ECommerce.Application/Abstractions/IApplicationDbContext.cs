@@ -16,6 +16,9 @@ public interface IApplicationDbContext
     DbSet<InventoryItem> InventoryItems { get; }
     DbSet<Order> Orders { get; }
     DbSet<Payment> Payments { get; }
+    DbSet<OutboxMessage> OutboxMessages { get; }
+    DbSet<InboxMessage> InboxMessages { get; }
+    DbSet<DeadLetterMessage> DeadLetterMessages { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

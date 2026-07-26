@@ -3,6 +3,7 @@ namespace ECommerce.Contracts.Events;
 public interface IIntegrationEvent
 {
     Guid Id { get; }
+    string CorrelationId { get; }
     DateTime OccurredOnUtc { get; }
 }
 
@@ -12,10 +13,12 @@ public record OrderCreatedIntegrationEvent(
     Guid UserId,
     decimal TotalAmount,
     IReadOnlyCollection<OrderItemIntegrationDto> Items,
-    DateTime OccurredOnUtc
+    DateTime OccurredOnUtc,
+    string CorrelationId = ""
 ) : IIntegrationEvent
 {
     public Guid Id { get; } = Guid.NewGuid();
+    public string CorrelationId { get; } = string.IsNullOrWhiteSpace(CorrelationId) ? Guid.NewGuid().ToString() : CorrelationId;
 }
 
 public record OrderItemIntegrationDto(
@@ -33,10 +36,12 @@ public record OrderStatusChangedIntegrationEvent(
     string OrderNumber,
     string OldStatus,
     string NewStatus,
-    DateTime OccurredOnUtc
+    DateTime OccurredOnUtc,
+    string CorrelationId = ""
 ) : IIntegrationEvent
 {
     public Guid Id { get; } = Guid.NewGuid();
+    public string CorrelationId { get; } = string.IsNullOrWhiteSpace(CorrelationId) ? Guid.NewGuid().ToString() : CorrelationId;
 }
 
 public record StockReservedIntegrationEvent(
@@ -44,10 +49,12 @@ public record StockReservedIntegrationEvent(
     Guid ProductId,
     int ReservedQuantity,
     int AvailableQuantity,
-    DateTime OccurredOnUtc
+    DateTime OccurredOnUtc,
+    string CorrelationId = ""
 ) : IIntegrationEvent
 {
     public Guid Id { get; } = Guid.NewGuid();
+    public string CorrelationId { get; } = string.IsNullOrWhiteSpace(CorrelationId) ? Guid.NewGuid().ToString() : CorrelationId;
 }
 
 public record PaymentRequestedIntegrationEvent(
@@ -56,10 +63,12 @@ public record PaymentRequestedIntegrationEvent(
     Guid UserId,
     decimal Amount,
     string Currency,
-    DateTime OccurredOnUtc
+    DateTime OccurredOnUtc,
+    string CorrelationId = ""
 ) : IIntegrationEvent
 {
     public Guid Id { get; } = Guid.NewGuid();
+    public string CorrelationId { get; } = string.IsNullOrWhiteSpace(CorrelationId) ? Guid.NewGuid().ToString() : CorrelationId;
 }
 
 public record PaymentSucceededIntegrationEvent(
@@ -68,10 +77,12 @@ public record PaymentSucceededIntegrationEvent(
     Guid UserId,
     decimal Amount,
     string TransactionId,
-    DateTime OccurredOnUtc
+    DateTime OccurredOnUtc,
+    string CorrelationId = ""
 ) : IIntegrationEvent
 {
     public Guid Id { get; } = Guid.NewGuid();
+    public string CorrelationId { get; } = string.IsNullOrWhiteSpace(CorrelationId) ? Guid.NewGuid().ToString() : CorrelationId;
 }
 
 public record PaymentFailedIntegrationEvent(
@@ -79,8 +90,10 @@ public record PaymentFailedIntegrationEvent(
     Guid OrderId,
     Guid UserId,
     string FailureReason,
-    DateTime OccurredOnUtc
+    DateTime OccurredOnUtc,
+    string CorrelationId = ""
 ) : IIntegrationEvent
 {
     public Guid Id { get; } = Guid.NewGuid();
+    public string CorrelationId { get; } = string.IsNullOrWhiteSpace(CorrelationId) ? Guid.NewGuid().ToString() : CorrelationId;
 }

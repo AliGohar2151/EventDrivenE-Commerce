@@ -1,8 +1,8 @@
 # Project Memory — Event-Driven E-Commerce Backend
 
 **Last Updated:** 2026-07-26
-**Current Phase:** Phase 9 — Payment Workflow (Completed)
-**Next Phase:** Phase 10 — Reliable Event Processing
+**Current Phase:** Phase 10 — Reliable Event Processing (Completed)
+**Next Phase:** Phase 11 — Notification System
 
 ---
 
@@ -62,6 +62,13 @@
 - Integration event publishing (`PaymentRequestedIntegrationEvent`, `PaymentSucceededIntegrationEvent`, `PaymentFailedIntegrationEvent`).
 - `PaymentsController` API endpoints.
 
+### Phase 10 — Reliable Event Processing (COMPLETED)
+- Outbox Pattern (`OutboxMessage`) for atomic database transaction event publishing.
+- Inbox Pattern (`InboxMessage`) for consumer idempotency & deduplication (`MessageId` + `HandlerName`).
+- Resilient Consumer (`ResilientConsumer`) with Exponential Backoff + Jitter retry policy and configurable retry limit.
+- Dead-Letter Queue / Storage (`DeadLetterMessage`) for routing exhausted message failures.
+- Distributed Correlation ID propagation across all integration events.
+
 ---
 
 ## 2. Key Architectural Decisions
@@ -71,21 +78,20 @@
 - **Product Variants:** Modeled as immutable `ValueObject` owned types in EF Core (`product_variants` table).
 - **Concurrency Protection:** Optimistic concurrency tokens (`Version`) on `InventoryItem`.
 - **Payment Idempotency:** Unique index on `IdempotencyKey` prevents duplicate transaction processing.
-- **Messaging:** Transport-decoupled integration events (`IIntegrationEvent`) with async event bus (`IEventBus`).
+- **Messaging Reliability:** Outbox database persistence, Inbox deduplication, Exponential Backoff + Jitter retries, and Dead-Letter storage routing.
 
 ---
 
 ## 3. Current State & Known Issues
 
 - **Build Status:** Clean compilation under .NET 10 SDK.
-- **Tests Status:** All 57 Unit, Integration, and Architecture tests passing cleanly.
+- **Tests Status:** All 60 Unit, Integration, and Architecture tests passing cleanly.
 - **Known Issues:** None.
 
 ---
 
 ## 4. Next Recommended Task
 
-- Proceed to **Phase 10 — Reliable Event Processing**:
-  - Implement Outbox Pattern for reliable database + event bus publishing.
-  - Implement Inbox Pattern / Idempotent Event Consumers.
-  - Implement Dead-Letter Queue (DLQ) & retry policy handling.
+- Proceed to **Phase 11 — Notification System**:
+  - Implement notification template engine & provider abstractions.
+  - Implement Email / SMS / In-App notification services triggered by integration events (`OrderCreated`, `PaymentSucceeded`, `PaymentFailed`, `OrderShipped`).
