@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ECommerce.Application\ECommerce.Application.csproj" />
+    <ProjectReference Include="..\ECommerce.Domain\ECommerce.Domain.csproj" />
+    <ProjectReference Include="..\ECommerce.Contracts\ECommerce.Contracts.csproj" />
+  </ItemGroup>
+</Project>
