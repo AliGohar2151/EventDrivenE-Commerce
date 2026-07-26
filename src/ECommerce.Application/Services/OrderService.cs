@@ -1,4 +1,5 @@
 using ECommerce.Application.Abstractions;
+using ECommerce.Contracts.Events;
 using ECommerce.Contracts.Orders;
 using ECommerce.Domain.Entities;
 using ECommerce.Domain.Primitives;
@@ -10,11 +11,13 @@ public class OrderService : IOrderService
 {
     private readonly IApplicationDbContext _context;
     private readonly ICartRepository _cartRepository;
+    private readonly IEventBus _eventBus;
 
-    public OrderService(IApplicationDbContext context, ICartRepository cartRepository)
+    public OrderService(IApplicationDbContext context, ICartRepository cartRepository, IEventBus eventBus)
     {
         _context = context;
         _cartRepository = cartRepository;
+        _eventBus = eventBus;
     }
 
     public async Task<Result<OrderResponse>> CreateOrderAsync(Guid userId, CreateOrderRequest request, CancellationToken cancellationToken = default)
@@ -75,6 +78,15 @@ public class OrderService : IOrderService
         // Clear shopping cart after successful order creation
         await _cartRepository.DeleteAsync(userId, cancellationToken);
 
+        // Publish OrderCreatedIntegrationEvent to EventBus
+        var integrationItems = order.Items.Select(i => new OrderItemIntegrationDto(
+            i.ProductId, i.ProductName, i.ProductSku, i.VariantSku, i.UnitPrice, i.Quantity, i.TotalPrice
+        )).ToList();
+
+        await _eventBus.PublishAsync(new OrderCreatedIntegrationEvent(
+            order.Id, order.OrderNumber, order.UserId, order.TotalAmount, integrationItems, DateTime.UtcNow
+        ), cancellationToken);
+
         return Result.Success(MapToResponse(order));
     }
 
@@ -126,13 +138,13 @@ public class OrderService : IOrderService
             return Result.Failure<OrderResponse>(Error.Validation("Order.InvalidStatus", $"Invalid order status '{request.Status}'."));
         }
 
+        var oldStatus = order.Status.ToString();
         var transitionResult = order.TransitionToStatus(newStatus, request.Reason);
         if (transitionResult.IsFailure)
         {
             return Result.Failure<OrderResponse>(transitionResult.Error);
         }
 
-        // If status transitioned to Cancelled, release reserved stock
         if (newStatus == OrderStatus.Cancelled)
         {
             foreach (var item in order.Items)
@@ -143,6 +155,11 @@ public class OrderService : IOrderService
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        // Publish OrderStatusChangedIntegrationEvent to EventBus
+        await _eventBus.PublishAsync(new OrderStatusChangedIntegrationEvent(
+            order.Id, order.OrderNumber, oldStatus, newStatus.ToString(), DateTime.UtcNow
+        ), cancellationToken);
 
         return Result.Success(MapToResponse(order));
     }
@@ -163,13 +180,13 @@ public class OrderService : IOrderService
             return Result.Failure(Error.Forbidden("Order.AccessDenied", "You do not have permission to cancel this order."));
         }
 
+        var oldStatus = order.Status.ToString();
         var cancelResult = order.Cancel(reason);
         if (cancelResult.IsFailure)
         {
             return cancelResult;
         }
 
-        // Release reserved stock for cancelled order items
         foreach (var item in order.Items)
         {
             var inventory = await _context.InventoryItems.FirstOrDefaultAsync(i => i.ProductId == item.ProductId, cancellationToken);
@@ -177,6 +194,10 @@ public class OrderService : IOrderService
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        await _eventBus.PublishAsync(new OrderStatusChangedIntegrationEvent(
+            order.Id, order.OrderNumber, oldStatus, OrderStatus.Cancelled.ToString(), DateTime.UtcNow
+        ), cancellationToken);
 
         return Result.Success();
     }

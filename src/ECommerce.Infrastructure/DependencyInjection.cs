@@ -1,6 +1,8 @@
 using System.Text;
 using ECommerce.Application.Abstractions;
+using ECommerce.Contracts.Events;
 using ECommerce.Infrastructure.Authentication;
+using ECommerce.Infrastructure.Messaging;
 using ECommerce.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +25,10 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<ICartRepository, CartRepository>();
+
+        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+        services.AddSingleton<IEventBus, InMemoryEventBus>();
+        services.AddTransient<IIntegrationEventHandler<OrderCreatedIntegrationEvent>, OrderCreatedIntegrationEventHandler>();
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.AddSingleton<IPasswordHasher, PasswordHasher>();

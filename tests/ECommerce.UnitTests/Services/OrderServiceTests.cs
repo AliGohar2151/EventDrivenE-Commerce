@@ -1,9 +1,12 @@
 using ECommerce.Application.Services;
 using ECommerce.Contracts.Orders;
 using ECommerce.Domain.Entities;
+using ECommerce.Infrastructure.Messaging;
 using ECommerce.Infrastructure.Persistence;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace ECommerce.UnitTests.Services;
@@ -12,6 +15,7 @@ public class OrderServiceTests
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly CartRepository _cartRepository;
+    private readonly InMemoryEventBus _eventBus;
     private readonly OrderService _service;
 
     public OrderServiceTests()
@@ -22,7 +26,8 @@ public class OrderServiceTests
 
         _dbContext = new ApplicationDbContext(options);
         _cartRepository = new CartRepository();
-        _service = new OrderService(_dbContext, _cartRepository);
+        _eventBus = new InMemoryEventBus(new ServiceCollection().BuildServiceProvider(), NullLogger<InMemoryEventBus>.Instance);
+        _service = new OrderService(_dbContext, _cartRepository, _eventBus);
     }
 
     [Fact]
