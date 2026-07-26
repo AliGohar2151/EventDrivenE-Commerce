@@ -14,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<UserRole> UserRoles { get; }
     DbSet<RolePermission> RolePermissions { get; }
     DbSet<InventoryItem> InventoryItems { get; }
+    DbSet<Order> Orders { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
