@@ -6,8 +6,8 @@
 **Target Framework:** .NET 10
 **Language:** C#
 **Architecture:** Clean Architecture + Modular Monolith + Event-Driven Architecture
-**Status:** Planned
-**Current Phase:** Phase 0 — Project Foundation
+**Status:** In Progress
+**Current Phase:** Phase 2 — Database & Persistence
 **Version:** 1.0
 
 ---

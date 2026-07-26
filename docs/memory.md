@@ -1,8 +1,8 @@
 # Project Memory — Event-Driven E-Commerce Backend
 
 **Last Updated:** 2026-07-26
-**Current Phase:** Phase 1 — Domain Foundation (Completed)
-**Next Phase:** Phase 2 — Database & Persistence
+**Current Phase:** Phase 2 — Database & Persistence (Completed)
+**Next Phase:** Phase 3 — Authentication & Authorization
 
 ---
 
@@ -16,29 +16,25 @@
 - Added native ASP.NET Core Health Checks registered at `/health`.
 
 ### Phase 1 — Domain Foundation (COMPLETED)
-- Created domain primitives in `src/ECommerce.Domain/Primitives`:
-  - `IDomainEvent`: Domain event contract (`Id`, `OccurredOnUtc`).
-  - `Entity<TId>`: Base domain entity with identity equality.
-  - `AggregateRoot<TId>`: Base aggregate root with domain event management.
-  - `ValueObject`: Base value object with structural atomic equality.
-  - `Error` & `ErrorType`: Standard domain error definitions.
-  - `Result` & `Result<TValue>`: Monadic result pattern for functional handling.
-- Created `DomainException` in `src/ECommerce.Domain/Exceptions`.
-- Added unit tests in `tests/ECommerce.UnitTests/Domain`:
-  - `EntityTests.cs`
-  - `AggregateRootTests.cs`
-  - `ValueObjectTests.cs`
-  - `ResultTests.cs`
-- Architecture tests verified `ECommerce.Domain` remains 100% framework-independent with zero infrastructure dependencies.
+- Created domain primitives in `src/ECommerce.Domain/Primitives`: `IDomainEvent`, `Entity<TId>`, `AggregateRoot<TId>`, `ValueObject`, `Error`, `Result`, `DomainException`.
+- Created unit tests covering domain primitives and architecture boundary rules.
+
+### Phase 2 — Database & Persistence (COMPLETED)
+- Added EF Core and PostgreSQL packages (`Npgsql.EntityFrameworkCore.PostgreSQL`, `Microsoft.EntityFrameworkCore.Design`, `Microsoft.EntityFrameworkCore.Tools`, `Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore`).
+- Created foundational domain entities in `src/ECommerce.Domain/Entities`: `User`, `Role`, `Permission`, `Category`, `Product`.
+- Created `ApplicationDbContext` and explicit `IEntityTypeConfiguration<T>` mappings in `src/ECommerce.Infrastructure/Persistence/Configurations`.
+- Configured `ApplicationDbContext` registration with PostgreSQL provider in `src/ECommerce.Infrastructure/DependencyInjection.cs`.
+- Configured EF Core DbContext Health Check (`AddDbContextCheck<ApplicationDbContext>()`) in `src/ECommerce.Api/Program.cs` and `ConnectionStrings:Database` in `appsettings.json`.
+- Added unit tests in `tests/ECommerce.UnitTests/Infrastructure/DbContextTests.cs` verifying EF Core entity mapping and in-memory query execution.
 
 ---
 
 ## 2. Key Architectural Decisions
 
 - **Target Framework:** .NET 10 (`net10.0`).
-- **Domain Independence:** `ECommerce.Domain` contains core DDD abstractions with zero external NuGet dependencies.
-- **Error Handling:** Functional `Result` / `Result<TValue>` pattern for business operations; `DomainException` for unexpected domain rule violations.
-- **Domain Events:** Collected in `AggregateRoot<TId>` via `AddDomainEvent` and dispatched at persistence/transaction boundaries.
+- **Domain Purity:** Domain entities contain ZERO EF Core annotations/attributes. All schema mappings are configured explicitly using EF Core `IEntityTypeConfiguration<T>` inside Infrastructure.
+- **Persistence Provider:** PostgreSQL with Npgsql provider; in-memory EF Core provider used for unit testing.
+- **Health Checks:** Native DbContext health check integrated with ASP.NET Core Health Checks subsystem.
 
 ---
 
@@ -52,9 +48,9 @@
 
 ## 4. Next Recommended Task
 
-- Proceed to **Phase 2 — Database & Persistence**:
-  - Add EF Core PostgreSQL dependencies (`Npgsql.EntityFrameworkCore.PostgreSQL`).
-  - Configure `ApplicationDbContext` in `ECommerce.Infrastructure`.
-  - Create initial entity configurations (`User`, `Role`, `Permission`, `Product`, `Category`).
-  - Configure migrations and database health check.
-  - Integration tests with PostgreSQL / Testcontainers or EF Core in-memory setup.
+- Proceed to **Phase 3 — Authentication & Authorization**:
+  - Implement User registration & Password hashing (ASP.NET Core Identity PasswordHasher or BCrypt / Argon2).
+  - Implement JWT access token generation & validation middleware.
+  - Implement Refresh tokens with rotation and revocation.
+  - Implement Role-based access control (RBAC) and Permission-based authorization policies.
+  - Add authentication and authorization unit & integration tests.
