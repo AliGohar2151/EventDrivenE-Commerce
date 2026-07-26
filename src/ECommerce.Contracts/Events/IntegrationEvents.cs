@@ -49,3 +49,38 @@ public record StockReservedIntegrationEvent(
 {
     public Guid Id { get; } = Guid.NewGuid();
 }
+
+public record PaymentRequestedIntegrationEvent(
+    Guid PaymentId,
+    Guid OrderId,
+    Guid UserId,
+    decimal Amount,
+    string Currency,
+    DateTime OccurredOnUtc
+) : IIntegrationEvent
+{
+    public Guid Id { get; } = Guid.NewGuid();
+}
+
+public record PaymentSucceededIntegrationEvent(
+    Guid PaymentId,
+    Guid OrderId,
+    Guid UserId,
+    decimal Amount,
+    string TransactionId,
+    DateTime OccurredOnUtc
+) : IIntegrationEvent
+{
+    public Guid Id { get; } = Guid.NewGuid();
+}
+
+public record PaymentFailedIntegrationEvent(
+    Guid PaymentId,
+    Guid OrderId,
+    Guid UserId,
+    string FailureReason,
+    DateTime OccurredOnUtc
+) : IIntegrationEvent
+{
+    public Guid Id { get; } = Guid.NewGuid();
+}
