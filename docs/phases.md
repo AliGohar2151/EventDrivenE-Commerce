@@ -7,7 +7,7 @@
 **Language:** C#
 **Architecture:** Clean Architecture + Modular Monolith + Event-Driven Architecture
 **Status:** In Progress
-**Current Phase:** Phase 4 — Product Catalog
+**Current Phase:** Phase 5 — Inventory Management
 **Version:** 1.0
 
 ---
@@ -1134,8 +1134,8 @@ Phase 0 — Project Foundation       [COMPLETE]
 Phase 1 — Domain Foundation        [COMPLETE]
 Phase 2 — Database & Persistence    [COMPLETE]
 Phase 3 — Authentication            [COMPLETE]
-Phase 4 — Product Catalog           [IN PROGRESS]
-Phase 5 — Inventory                 [NOT STARTED]
+Phase 4 — Product Catalog           [COMPLETE]
+Phase 5 — Inventory                 [IN PROGRESS]
 Phase 6 — Shopping Cart             [NOT STARTED]
 Phase 7 — Order Management          [NOT STARTED]
 Phase 8 — Event Messaging            [NOT STARTED]

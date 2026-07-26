@@ -13,6 +13,7 @@ public interface IApplicationDbContext
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<UserRole> UserRoles { get; }
     DbSet<RolePermission> RolePermissions { get; }
+    DbSet<InventoryItem> InventoryItems { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
