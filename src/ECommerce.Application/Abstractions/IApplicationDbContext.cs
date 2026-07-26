@@ -19,6 +19,7 @@ public interface IApplicationDbContext
     DbSet<OutboxMessage> OutboxMessages { get; }
     DbSet<InboxMessage> InboxMessages { get; }
     DbSet<DeadLetterMessage> DeadLetterMessages { get; }
+    DbSet<Notification> Notifications { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

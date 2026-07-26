@@ -3,6 +3,7 @@ using ECommerce.Application.Abstractions;
 using ECommerce.Contracts.Events;
 using ECommerce.Infrastructure.Authentication;
 using ECommerce.Infrastructure.Messaging;
+using ECommerce.Infrastructure.Notifications;
 using ECommerce.Infrastructure.Payments;
 using ECommerce.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddSingleton<ICartRepository, CartRepository>();
         services.AddSingleton<IPaymentProvider, MockPaymentProvider>();
+        services.AddSingleton<INotificationProvider, MockNotificationProvider>();
 
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.AddSingleton<IEventBus, InMemoryEventBus>();

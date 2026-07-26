@@ -1,8 +1,8 @@
 # Project Memory — Event-Driven E-Commerce Backend
 
 **Last Updated:** 2026-07-26
-**Current Phase:** Phase 10 — Reliable Event Processing (Completed)
-**Next Phase:** Phase 11 — Notification System
+**Current Phase:** Phase 11 — Notification System (Completed)
+**Next Phase:** Phase 12 — Observability
 
 ---
 
@@ -69,6 +69,12 @@
 - Dead-Letter Queue / Storage (`DeadLetterMessage`) for routing exhausted message failures.
 - Distributed Correlation ID propagation across all integration events.
 
+### Phase 11 — Notification System (COMPLETED)
+- Notification aggregate root (`Notification`), status tracking (`Pending`, `Sent`, `Failed`), and domain events (`NotificationSentDomainEvent`, `NotificationFailedDomainEvent`).
+- `INotificationProvider` abstraction and `MockNotificationProvider` implementation.
+- Async Integration Event Consumers (`OrderCreatedNotificationConsumer`, `PaymentNotificationConsumer`).
+- `NotificationsController` API endpoints (`/api/v1/notifications`).
+
 ---
 
 ## 2. Key Architectural Decisions
@@ -79,19 +85,21 @@
 - **Concurrency Protection:** Optimistic concurrency tokens (`Version`) on `InventoryItem`.
 - **Payment Idempotency:** Unique index on `IdempotencyKey` prevents duplicate transaction processing.
 - **Messaging Reliability:** Outbox database persistence, Inbox deduplication, Exponential Backoff + Jitter retries, and Dead-Letter storage routing.
+- **Async Notifications:** Triggered out-of-band by event consumers without blocking core checkout or payment request threads.
 
 ---
 
 ## 3. Current State & Known Issues
 
 - **Build Status:** Clean compilation under .NET 10 SDK.
-- **Tests Status:** All 60 Unit, Integration, and Architecture tests passing cleanly.
+- **Tests Status:** All 65 Unit, Integration, and Architecture tests passing cleanly.
 - **Known Issues:** None.
 
 ---
 
 ## 4. Next Recommended Task
 
-- Proceed to **Phase 11 — Notification System**:
-  - Implement notification template engine & provider abstractions.
-  - Implement Email / SMS / In-App notification services triggered by integration events (`OrderCreated`, `PaymentSucceeded`, `PaymentFailed`, `OrderShipped`).
+- Proceed to **Phase 12 — Observability**:
+  - Structured logging with Serilog / OpenTelemetry.
+  - Metrics & Distributed Tracing.
+  - Advanced Health Check metrics & endpoints.
