@@ -7,7 +7,7 @@
 **Language:** C#
 **Architecture:** Clean Architecture + Modular Monolith + Event-Driven Architecture
 **Status:** In Progress
-**Current Phase:** Phase 2 — Database & Persistence
+**Current Phase:** Phase 3 — Authentication & Authorization
 **Version:** 1.0
 
 ---
@@ -1130,10 +1130,10 @@ The current status should always be maintained in `memory.md`.
 Example:
 
 ```text
-Phase 0 — Project Foundation       [IN PROGRESS]
-Phase 1 — Domain Foundation        [NOT STARTED]
-Phase 2 — Database & Persistence    [NOT STARTED]
-Phase 3 — Authentication            [NOT STARTED]
+Phase 0 — Project Foundation       [COMPLETE]
+Phase 1 — Domain Foundation        [COMPLETE]
+Phase 2 — Database & Persistence    [COMPLETE]
+Phase 3 — Authentication            [IN PROGRESS]
 Phase 4 — Product Catalog           [NOT STARTED]
 Phase 5 — Inventory                 [NOT STARTED]
 Phase 6 — Shopping Cart             [NOT STARTED]

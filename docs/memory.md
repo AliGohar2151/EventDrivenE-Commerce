@@ -1,8 +1,8 @@
 # Project Memory — Event-Driven E-Commerce Backend
 
 **Last Updated:** 2026-07-26
-**Current Phase:** Phase 2 — Database & Persistence (Completed)
-**Next Phase:** Phase 3 — Authentication & Authorization
+**Current Phase:** Phase 3 — Authentication & Authorization (Completed)
+**Next Phase:** Phase 4 — Product Catalog
 
 ---
 
@@ -23,18 +23,25 @@
 - Added EF Core and PostgreSQL packages (`Npgsql.EntityFrameworkCore.PostgreSQL`, `Microsoft.EntityFrameworkCore.Design`, `Microsoft.EntityFrameworkCore.Tools`, `Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore`).
 - Created foundational domain entities in `src/ECommerce.Domain/Entities`: `User`, `Role`, `Permission`, `Category`, `Product`.
 - Created `ApplicationDbContext` and explicit `IEntityTypeConfiguration<T>` mappings in `src/ECommerce.Infrastructure/Persistence/Configurations`.
-- Configured `ApplicationDbContext` registration with PostgreSQL provider in `src/ECommerce.Infrastructure/DependencyInjection.cs`.
-- Configured EF Core DbContext Health Check (`AddDbContextCheck<ApplicationDbContext>()`) in `src/ECommerce.Api/Program.cs` and `ConnectionStrings:Database` in `appsettings.json`.
-- Added unit tests in `tests/ECommerce.UnitTests/Infrastructure/DbContextTests.cs` verifying EF Core entity mapping and in-memory query execution.
+- Configured liveness `/health` and readiness `/health/ready` probe endpoints.
+
+### Phase 3 — Authentication & Authorization (COMPLETED)
+- Added JWT Authentication & Security packages (`Microsoft.AspNetCore.Authentication.JwtBearer`, `System.IdentityModel.Tokens.Jwt`, `Microsoft.IdentityModel.Tokens`).
+- Created DTOs in `src/ECommerce.Contracts/Authentication`: `RegisterUserRequest`, `LoginRequest`, `RefreshTokenRequest`, `RevokeTokenRequest`, `AuthenticationResponse`, `UserResponse`.
+- Extended domain entities (`User`, `Role`, `Permission`) and added `RefreshToken` entity (rotation & revocation), `UserRole`, `RolePermission`.
+- Created Application interfaces (`IPasswordHasher`, `IJwtProvider`, `IAuthenticationService`) and `AuthenticationService` implementation.
+- Implemented `JwtProvider` (access token generation with claims), `PasswordHasher` (PBKDF2/SHA256 secure hashing), and `PermissionAuthorizationHandler` + `HasPermissionAttribute` for permission-based policy enforcement.
+- Created `AuthenticationController` in `src/ECommerce.Api/Controllers` exposing `/api/v1/auth/register`, `/login`, `/refresh`, `/revoke`, and `/me`.
+- Added unit tests in `tests/ECommerce.UnitTests/Authentication`: `PasswordHasherTests.cs`, `JwtProviderTests.cs`, `AuthenticationServiceTests.cs`.
 
 ---
 
 ## 2. Key Architectural Decisions
 
 - **Target Framework:** .NET 10 (`net10.0`).
-- **Domain Purity:** Domain entities contain ZERO EF Core annotations/attributes. All schema mappings are configured explicitly using EF Core `IEntityTypeConfiguration<T>` inside Infrastructure.
-- **Persistence Provider:** PostgreSQL with Npgsql provider; in-memory EF Core provider used for unit testing.
-- **Health Checks:** Native DbContext health check integrated with ASP.NET Core Health Checks subsystem.
+- **Token Strategy:** Short-lived JWT Access Tokens (15 min) + Refresh Tokens (7 days) with sliding rotation and revocation tracking stored in EF Core database.
+- **Password Security:** PBKDF2 with SHA-256 and salt per user using `Rfc2898DeriveBytes`.
+- **Authorization:** Permission-based authorization model using custom `IAuthorizationPolicyProvider` and `IAuthorizationHandler` (`permission` claims).
 
 ---
 
@@ -48,9 +55,8 @@
 
 ## 4. Next Recommended Task
 
-- Proceed to **Phase 3 — Authentication & Authorization**:
-  - Implement User registration & Password hashing (ASP.NET Core Identity PasswordHasher or BCrypt / Argon2).
-  - Implement JWT access token generation & validation middleware.
-  - Implement Refresh tokens with rotation and revocation.
-  - Implement Role-based access control (RBAC) and Permission-based authorization policies.
-  - Add authentication and authorization unit & integration tests.
+- Proceed to **Phase 4 — Product Catalog**:
+  - Implement Product & Category management use cases (Commands/Queries).
+  - Implement Product variants, SKU, price, status.
+  - Implement Product search, pagination, filtering, sorting.
+  - API endpoints for product CRUD operations protected by permission policies.
