@@ -7,7 +7,7 @@
 **Language:** C#
 **Architecture:** Clean Architecture + Modular Monolith + Event-Driven Architecture
 **Status:** In Progress
-**Current Phase:** Phase 14 — Docker & Local Infrastructure
+**Current Phase:** Phase 15 — CI/CD
 **Version:** 1.0
 
 ---
@@ -1144,8 +1144,8 @@ Phase 10 — Reliable Events           [COMPLETE]
 Phase 11 — Notifications             [COMPLETE]
 Phase 12 — Observability             [COMPLETE]
 Phase 13 — Testing & Quality         [COMPLETE]
-Phase 14 — Docker                    [IN PROGRESS]
-Phase 15 — CI/CD                     [NOT STARTED]
+Phase 14 — Docker                    [COMPLETE]
+Phase 15 — CI/CD                     [IN PROGRESS]
 Phase 16 — Production Hardening      [NOT STARTED]
 Phase 17 — Documentation             [NOT STARTED]
 ```
