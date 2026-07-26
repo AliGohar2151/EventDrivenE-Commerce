@@ -1,8 +1,8 @@
 # Project Memory — Event-Driven E-Commerce Backend
 
 **Last Updated:** 2026-07-26
-**Current Phase:** Phase 13 — Testing & Quality (Completed)
-**Next Phase:** Phase 14 — Docker & Local Infrastructure
+**Current Phase:** Phase 14 — Docker & Local Infrastructure (Completed)
+**Next Phase:** Phase 15 — CI/CD
 
 ---
 
@@ -85,6 +85,11 @@
 - Expanded Architecture rules (`ArchitectureTests`) verifying Domain independence, Application boundaries, and Entity primitive inheritance.
 - Additional Domain unit tests for Inventory concurrency and Cart calculations.
 
+### Phase 14 — Docker & Local Infrastructure (COMPLETED)
+- Multi-stage `Dockerfile` (.NET 10 SDK build -> ASP.NET runtime container).
+- Single-command container orchestration (`docker-compose.yml`) for `postgres` (PostgreSQL 16), `redis` (Redis 7), `rabbitmq` (RabbitMQ 3 Management UI), and `api` services with health check dependencies and persistent volumes.
+- `.dockerignore` build context optimization.
+
 ---
 
 ## 2. Key Architectural Decisions
@@ -98,6 +103,7 @@
 - **Async Notifications:** Triggered out-of-band by event consumers without blocking core checkout or payment request threads.
 - **Observability:** Distributed `X-Correlation-ID` tracing across logs, HTTP responses, and events with `System.Diagnostics.Metrics` instrumentation.
 - **Integration Testing:** Isolated in-memory WebApplicationFactory testing fixture (`CustomWebApplicationFactory`).
+- **Container Orchestration:** Health-checked `docker-compose.yml` environment with isolated persistent volumes.
 
 ---
 
@@ -111,6 +117,5 @@
 
 ## 4. Next Recommended Task
 
-- Proceed to **Phase 14 — Docker & Local Infrastructure**:
-  - `Dockerfile` multi-stage build.
-  - `docker-compose.yml` orchestrating PostgreSQL, Redis, RabbitMQ, and API service.
+- Proceed to **Phase 15 — CI/CD**:
+  - GitHub Actions build, test, lint, and container packaging workflow (`.github/workflows/ci.yml`).

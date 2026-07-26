@@ -1,0 +1,13 @@
+.git
+.gitignore
+.vs
+.idea
+.vscode
+bin/
+obj/
+out/
+publish/
+*.user
+*.userosscache
+*.sln.docstates
+.DS_Store
