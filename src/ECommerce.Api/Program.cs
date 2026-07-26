@@ -1,36 +1,35 @@
 using ECommerce.Application;
 using ECommerce.Infrastructure;
-using ECommerce.Infrastructure.Persistence;
+using ECommerce.Infrastructure.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<ApplicationDbContext>(tags: new[] { "ready" });
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+app.UseMiddleware<CorrelationIdMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Liveness probe (basic app responsiveness)
-app.MapHealthChecks("/health", new HealthCheckOptions
+app.MapHealthChecks("/health");
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
     Predicate = _ => false
 });
 
-// Readiness probe (includes infrastructure dependencies)
-app.MapHealthChecks("/health/ready", new HealthCheckOptions
-{
-    Predicate = check => check.Tags.Contains("ready")
-});
+app.MapHealthChecks("/health/ready");
 
 app.Run();
 

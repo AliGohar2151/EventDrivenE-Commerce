@@ -2,6 +2,7 @@ using System.Text;
 using ECommerce.Application.Abstractions;
 using ECommerce.Contracts.Events;
 using ECommerce.Infrastructure.Authentication;
+using ECommerce.Infrastructure.Logging;
 using ECommerce.Infrastructure.Messaging;
 using ECommerce.Infrastructure.Notifications;
 using ECommerce.Infrastructure.Payments;
@@ -29,6 +30,7 @@ public static class DependencyInjection
         services.AddSingleton<ICartRepository, CartRepository>();
         services.AddSingleton<IPaymentProvider, MockPaymentProvider>();
         services.AddSingleton<INotificationProvider, MockNotificationProvider>();
+        services.AddSingleton<ECommerceMetrics>();
 
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         services.AddSingleton<IEventBus, InMemoryEventBus>();

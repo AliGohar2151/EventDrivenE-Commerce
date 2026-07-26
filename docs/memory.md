@@ -1,8 +1,8 @@
 # Project Memory — Event-Driven E-Commerce Backend
 
 **Last Updated:** 2026-07-26
-**Current Phase:** Phase 11 — Notification System (Completed)
-**Next Phase:** Phase 12 — Observability
+**Current Phase:** Phase 12 — Observability (Completed)
+**Next Phase:** Phase 13 — Testing & Quality
 
 ---
 
@@ -75,6 +75,11 @@
 - Async Integration Event Consumers (`OrderCreatedNotificationConsumer`, `PaymentNotificationConsumer`).
 - `NotificationsController` API endpoints (`/api/v1/notifications`).
 
+### Phase 12 — Observability (COMPLETED)
+- Correlation ID middleware (`CorrelationIdMiddleware`) extracting/generating `X-Correlation-ID` header and pushing into logging scope.
+- Custom metrics instrumentation (`ECommerceMetrics`) for orders, payments, events, retries, and dead-letter messages.
+- Liveness (`/health/live`) and readiness (`/health/ready`) probe endpoints.
+
 ---
 
 ## 2. Key Architectural Decisions
@@ -86,20 +91,19 @@
 - **Payment Idempotency:** Unique index on `IdempotencyKey` prevents duplicate transaction processing.
 - **Messaging Reliability:** Outbox database persistence, Inbox deduplication, Exponential Backoff + Jitter retries, and Dead-Letter storage routing.
 - **Async Notifications:** Triggered out-of-band by event consumers without blocking core checkout or payment request threads.
+- **Observability:** Distributed `X-Correlation-ID` tracing across logs, HTTP responses, and events with `System.Diagnostics.Metrics` instrumentation.
 
 ---
 
 ## 3. Current State & Known Issues
 
 - **Build Status:** Clean compilation under .NET 10 SDK.
-- **Tests Status:** All 65 Unit, Integration, and Architecture tests passing cleanly.
+- **Tests Status:** All 68 Unit, Integration, and Architecture tests passing cleanly.
 - **Known Issues:** None.
 
 ---
 
 ## 4. Next Recommended Task
 
-- Proceed to **Phase 12 — Observability**:
-  - Structured logging with Serilog / OpenTelemetry.
-  - Metrics & Distributed Tracing.
-  - Advanced Health Check metrics & endpoints.
+- Proceed to **Phase 13 — Testing & Quality**:
+  - Code coverage review, edge case test expansion, boundary validation, and architecture rule enforcement.
